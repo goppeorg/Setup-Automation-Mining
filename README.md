@@ -144,8 +144,8 @@ sudo systemctl enable automation
 1. Buat direktori log:
 ```bash
 sudo mkdir -p /var/lib/rig_monitor
-sudo touch /var/log/{xmrig,rig_monitor}.log
-sudo chmod 644 /var/log/{xmrig,rig_monitor}.log
+sudo touch /var/lib/rig_monitor/{last_cmd_time,last_start_time,accepted_shares.log,last_xmrig_check}
+sudo chmod 644 /var/lib/rig_monitor/*
 ```
 
 2. Rotasi log otomatis:

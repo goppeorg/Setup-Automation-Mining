@@ -239,5 +239,5 @@ Dengan tutorial ini, Ubuntu Server Anda akan:
 
 Untuk update script di masa depan, cukup edit `/usr/local/bin/rig_monitor.sh` dan restart service:
 ```bash
-sudo systemctl restart rig-monitor
+sudo systemctl restart automation
 ```

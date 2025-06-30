@@ -64,21 +64,27 @@ sudo chmod +x /usr/local/bin/xmrig.sh
 ```bash
 cat <<EOF | sudo tee /etc/systemd/system/xmrig.service
 [Unit]
-Description=XMRig CPU Miner
+Description=XMRig Miner Service
 After=network.target
 
 [Service]
 Type=simple
-User=root
-WorkingDirectory=/root/xmrig/build
-ExecStart=/usr/local/bin/xmrig.sh
+ExecStart=/home/goppe/xmrig/build/xmrig.sh
+WorkingDirectory=/home/goppe/xmrig/build
 Restart=always
-RestartSec=30
+Nice=10
+CPUWeight=90
+MemoryMax=6G
+LimitMEMLOCK=infinity
+LimitNOFILE=65535
+RestartSec=10
+User=root
 StandardOutput=journal
 StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
+
 EOF
 
 sudo systemctl daemon-reload
@@ -97,7 +103,7 @@ sudo apt install -y jq lm-sensors bc curl
 ### **Langkah 6: Setup Script Monitoring**
 1. Buat file script:
 ```bash
-cat <<EOF | sudo tee /usr/local/bin/rig_monitor.sh
+cat <<EOF | sudo tee /usr/local/bin/automation.sh
 #!/bin/bash
 # === KONFIGURASI ===
 TOKEN="Token Telegram"
@@ -106,27 +112,30 @@ RIG_NAME="\$(hostname)"
 # ... (paste seluruh isi script newupgradeautomation.sh di sini) ...
 EOF
 
-sudo chmod +x /usr/local/bin/rig_monitor.sh
+sudo chmod +x /usr/local/bin/automation.sh
 ```
 
 2. Buat service untuk monitoring:
 ```bash
-cat <<EOF | sudo tee /etc/systemd/system/rig-monitor.service
+cat <<EOF | sudo tee /etc/systemd/system/automation.service
 [Unit]
-Description=Rig Monitoring Service
-After=network.target xmrig.service
+Description=Mining Automation Service
+After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/rig_monitor.sh
+ExecStart=/usr/bin/bash /home/goppe/xmrig/build/automation.sh
+WorkingDirectory=/home/goppe/xmrig/build
 Restart=always
+RestartSec=10
 User=root
+LimitMEMLOCK=infinity
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
 sudo systemctl daemon-reload
-sudo systemctl enable rig-monitor
+sudo systemctl enable automation
 ```
 
 ---
@@ -168,8 +177,7 @@ EOF
 
 ### **Langkah 8: Mulai Semua Layanan**
 ```bash
-sudo systemctl start xmrig
-sudo systemctl start rig-monitor
+sudo systemctl start automation
 ```
 
 ---
@@ -182,13 +190,13 @@ sudo systemctl status xmrig
 
 2. Cek status monitoring:
 ```bash
-sudo systemctl status rig-monitor
+sudo systemctl status automation
 ```
 
 3. Lihat log real-time:
 ```bash
 journalctl -fu xmrig
-journalctl -fu rig-monitor
+journalctl -fu automation
 ```
 
 ---
